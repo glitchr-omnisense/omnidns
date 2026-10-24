@@ -1,0 +1,28 @@
+# omniscient/omnidns with every omnidns/* provider:
+#
+#   docker compose run --rm omnidns test       # every package's tests (recorded answers, no network)
+#   docker compose run --rm omnidns bare       # plain PHP: a registry, a domain checked, registered, its zone written - and what PHP loaded
+#   docker compose run --rm omnidns phpstan    # PHPStan, each package at the highest level
+#   docker compose down -v                     # the harness's volume gone
+#
+# No live run: every provider needs an account and a key (OVH's availability included).
+# Providers come from GitHub (branch 1.x) unless their checkout sits under OMNIDNS_PLUGINS (set it
+# to ../.. in .env when this core sits in the workspace beside them): then that checkout is what runs.
+name: omnidns-harness
+
+services:
+  omnidns:
+    build: .
+    image: omniscient/omnidns-harness
+    # One service, no server beside it: Docker's default bridge, no network of its own to create.
+    network_mode: bridge
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ..:/omnidns/core
+      - ${OMNIDNS_PLUGINS:-./plugins}:/omnidns/plugins:ro
+      - harness:/harness
+
+volumes:
+  harness:

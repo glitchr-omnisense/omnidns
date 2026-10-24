@@ -1,0 +1,51 @@
+{
+    "name": "omniscient/omnidns",
+    "type": "library",
+    "description": "Omnidns: a domain name where it is registered, under any PHP host - whether it is free and at what price, registering and renewing it, the account's domains and their terms, their name servers, and the records of their zones; from OVH, Gandi, Cloudflare or Scaleway through one set of models. Providers are packages of their own (omnidns/ovh, omnidns/gandi, omnidns/cloudflare, omnidns/scaleway); no framework in require.",
+    "keywords": ["dns", "domain", "domains", "registrar", "dns-records", "ovh", "gandi", "cloudflare", "scaleway", "framework-agnostic", "omnidns"],
+    "homepage": "https://github.com/glitchr-studio/omnidns",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marco Meyer",
+            "email": "marco.meyer@glitchr.io"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "symfony/http-client-contracts": "^3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0",
+        "symfony/http-client": "^6.4|^7.0|^8.0"
+    },
+    "suggest": {
+        "omnidns/ovh": "OVHcloud: availability and price, registration and renewal, domains, name servers, zone records (over the official ovh/ovh client)",
+        "omnidns/gandi": "Gandi: availability and price, registration and renewal, domains, name servers, LiveDNS records (API v5, a personal access token)",
+        "omnidns/cloudflare": "Cloudflare: zone records (over cloudflare/sdk), the Registrar's domains and their terms",
+        "omnidns/scaleway": "Scaleway Domains and DNS: availability, registration and renewal, domains, name servers, zone records",
+        "symfony/http-client": "An HTTP client for the providers that take one (any symfony/http-client-contracts implementation does)"
+    },
+    "autoload": {
+        "psr-4": {
+            "Omnidns\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/",
+            "/docker/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Omnidns\\Tests\\": "Tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-1.x": "1.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

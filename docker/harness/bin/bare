@@ -1,0 +1,53 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * Omnidns in plain PHP: no bundle, no container, no framework. A registry
+ * with one provider in memory: a domain checked, one taken, one registered
+ * for two years and renewed, its name servers changed, its zone written (an
+ * A, an MX, a TXT; the A updated, the TXT deleted); a provider asked for what
+ * it cannot do. Prints what happened and every class and file PHP loaded,
+ * as JSON.
+ */
+
+use Omnidns\Exception\InvalidConfigException;
+use Omnidns\Model\Money;
+use Omnidns\Model\Record;
+use Omnidns\Registry;
+use Omnidns\Testing\MemoryFactory;
+
+require getenv('OMNIDNS_AUTOLOAD') ?: '/harness/vendor/autoload.php';
+
+$registry = new Registry([new MemoryFactory()], [
+    'memory' => ['factory' => 'memory', 'options' => ['domains' => ['glitchr.test' => '2027-03-01'], 'taken' => ['example.org'], 'price' => Money::fromDecimal('8.39', 'EUR')]],
+    'nowhere' => ['factory' => 'missing'],
+]);
+
+$report['free'] = $registry->availability('memory')->check('Omnidns-Bare.TEST.')->toArray();
+$report['taken'] = $registry->availability('memory')->check('example.org')->available;
+$report['order'] = $registry->registrar('memory')->register('omnidns-bare.test', 2)->toArray();
+$report['renewal'] = $registry->registrar('memory')->renew('omnidns-bare.test')->years;
+$report['domains'] = $registry->domains('memory')->domains();
+$report['expires'] = $registry->domains('memory')->domain('omnidns-bare.test')->expiresAt?->format('Y-m-d');
+$registry->nameservers('memory')->setNameservers('omnidns-bare.test', ['NS1.Example.NET.', 'ns2.example.net']);
+$report['nameservers'] = $registry->nameservers('memory')->nameservers('omnidns-bare.test');
+
+$dns = $registry->dns('memory');
+$a = $dns->add('omnidns-bare.test', new Record('A', '@', '192.0.2.1', 3600));
+$dns->add('omnidns-bare.test', Record::fromValue('MX', '', '10 mx.example.net.'));
+$dns->add('omnidns-bare.test', new Record('TXT', '_dmarc', 'v=DMARC1; p=none'));
+$dns->update('omnidns-bare.test', $a, new Record('A', '', '192.0.2.2', 300));
+$dns->delete('omnidns-bare.test', new Record('TXT', '_dmarc', '"v=DMARC1; p=none"'));
+$report['records'] = array_map(static fn (Record $r) => [$r->type, $r->fqdn('omnidns-bare.test'), $r->value(), $r->ttl], $dns->records('omnidns-bare.test'));
+$report['mx'] = count($dns->records('omnidns-bare.test', 'mx', ''));
+try {
+    $registry->get('nowhere');
+} catch (InvalidConfigException $e) {
+    $report['missing'] = $e->getMessage();
+}
+
+echo json_encode($report + ['loaded' => [
+    'symbols' => [...get_declared_classes(), ...get_declared_interfaces(), ...get_declared_traits()],
+    'files' => array_map('realpath', get_included_files()),
+    'eager' => array_map('realpath', array_values(is_file($f = dirname((string) (new ReflectionClass(Composer\Autoload\ClassLoader::class))->getFileName()).'/autoload_files.php') ? require $f : [])),
+]], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT), "\n";
