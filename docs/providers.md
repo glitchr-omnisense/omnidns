@@ -1,3 +1,8 @@
+---
+title: Writing a provider
+order: 80
+---
+
 # Writing a provider
 
 A provider is a package `omnidns/<name>` with a factory and a provider class:
@@ -22,3 +27,24 @@ A provider is a package `omnidns/<name>` with a factory and a provider class:
 - tests run in the core's harness (`docker/harness/plugins.php` lists the providers), on
   recorded answers with each request checked, with a `BareTest`; a `LiveTest` (group `live`)
   only where the provider can be read without an account.
+
+## What the four providers keep to
+
+- Every domain and zone given goes through `DomainName::normalize()` before any call.
+- A duration outside 1 to 10 years, and an owner the provider cannot take, are refused before
+  any call (`InvalidArgumentException`).
+- `update()` and `delete()` given a record without an id read the zone's records of that name
+  and type and take the one that is `sameAs()`; none found is a `ProviderException` naming the
+  zone.
+- A change the provider cannot make in place (a record's type at OVH, a record's name or type in
+  a Gandi rrset) is a deletion and an addition.
+- Host names (name servers, records' targets compared) are lower-cased, their trailing dot
+  removed where omnidns returns them.
+- An order costs money: a provider that can check one without making it says so (Gandi's
+  `dry_run`), and its README says how an order is paid.
+
+## Registering it
+
+- Plain PHP: give the factory to the `Registry`.
+- The harness: a line in `docker/harness/plugins.php` (slug and tests namespace); the provider's
+  checkout beside the core, or its repository at `github.com/glitchr-omnisense/omnidns-<slug>`.

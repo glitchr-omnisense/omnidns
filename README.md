@@ -63,9 +63,18 @@ handling of its clients' domains where they are registered.
 
 ## Documentation
 
-- [Installation, in plain PHP](docs/installation.md) (run as written by the tests)
-- [Writing a provider](docs/providers.md)
+- [Overview](docs/index.md): the providers and what each answers
+- [Installation](docs/installation.md) (its script run as written by the tests)
+- [Symfony](docs/symfony.md) and [Laravel](docs/laravel.md): the registry as a service, by hand
+- [Concepts](docs/concepts.md): contracts, capabilities, factories, the registry, every model
+- [Domains](docs/usage-domains.md): availability, orders, terms, name servers
+- [DNS records](docs/usage-dns.md)
+- [Configuration reference](docs/configuration.md): every provider's options
+- [Errors](docs/errors.md)
+- [Testing](docs/testing.md): the in-memory provider, recorded answers
 - [The harness](docs/harness.md)
+- [Writing a provider](docs/providers.md)
+- [Verified, and not](docs/verified.md)
 
 ## Verified, and not
 
