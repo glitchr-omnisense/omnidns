@@ -1,6 +1,6 @@
 # Installation, in plain PHP
 
-    composer require omniscient/omnidns omnidns/gandi symfony/http-client
+    composer require omnisense/omnidns omnidns/gandi symfony/http-client
 
 Each provider is its own package: `omnidns/ovh`, `omnidns/gandi`, `omnidns/cloudflare`,
 `omnidns/scaleway`. The block below runs as written in the tests (`Tests/DocsTest.php`), on the

@@ -1,4 +1,4 @@
-# omniscient/omnidns
+# omnisense/omnidns
 
 A domain name where it is registered, under any PHP host: whether it is free and at what price,
 registering and renewing it, the domains an account holds and when each ends, their name
@@ -46,15 +46,15 @@ $registry->dns('cloudflare')->add('example.org', new Record('A', '', '192.0.2.10
 
   | package | availability | register, renew | domains | name servers | records | client |
   |---|---|---|---|---|---|---|
-  | [omnidns/ovh](https://github.com/glitchr-studio/omnidns-ovh) | yes, priced | yes (a cart) | yes | yes | yes | ovh/ovh (official) |
-  | [omnidns/gandi](https://github.com/glitchr-studio/omnidns-gandi) | yes, priced | yes | yes | yes | LiveDNS | the application's |
-  | [omnidns/cloudflare](https://github.com/glitchr-studio/omnidns-cloudflare) | - | - | Registrar, read | - | yes | cloudflare/sdk |
-  | [omnidns/scaleway](https://github.com/glitchr-studio/omnidns-scaleway) | yes | yes | yes | yes | yes | the application's |
+  | [omnidns/ovh](https://github.com/glitchr-omnisense/omnidns-ovh) | yes, priced | yes (a cart) | yes | yes | yes | ovh/ovh (official) |
+  | [omnidns/gandi](https://github.com/glitchr-omnisense/omnidns-gandi) | yes, priced | yes | yes | yes | LiveDNS | the application's |
+  | [omnidns/cloudflare](https://github.com/glitchr-omnisense/omnidns-cloudflare) | - | - | Registrar, read | - | yes | cloudflare/sdk |
+  | [omnidns/scaleway](https://github.com/glitchr-omnisense/omnidns-scaleway) | yes | yes | yes | yes | yes | the application's |
 
 - **Hosts**: nothing of a framework here. The bridges (omnibridge/symfony, omnibridge/laravel)
   wire omnidns when the first site needs it (the forge, for its clients' domains).
 - **Frontier**: reading a domain's public registration data (RDAP, WHOIS) is
-  omniscient/omnistate's `omnistate/iana`, not this family.
+  omnisense/omnistate's `omnistate/iana`, not this family.
 
 Why a family and not `namingo/plexdns`, the one aggregated PHP library: it is the tool of a
 registry and registrar platform (Namingo) - its own `zones` and `records` tables over PDO as the
@@ -85,7 +85,7 @@ handling of its clients' domains where they are registered.
 
 ## Responsibility
 
-omniscient/omnidns and its omnidns/* providers are unofficial clients, affiliated with none of
+omnisense/omnidns and its omnidns/* providers are unofficial clients, affiliated with none of
 the services they reach. The MIT licence covers the code only and grants no right to any service;
 whoever runs them complies with each service's terms (named in each provider's README and in
 `Capabilities::$terms`), pays for the orders made, and obtains what they require.

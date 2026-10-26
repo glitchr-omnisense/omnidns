@@ -1,9 +1,9 @@
 {
-    "name": "omniscient/omnidns",
+    "name": "omnisense/omnidns",
     "type": "library",
     "description": "Omnidns: a domain name where it is registered, under any PHP host - whether it is free and at what price, registering and renewing it, the account's domains and their terms, their name servers, and the records of their zones; from OVH, Gandi, Cloudflare or Scaleway through one set of models. Providers are packages of their own (omnidns/ovh, omnidns/gandi, omnidns/cloudflare, omnidns/scaleway); no framework in require.",
     "keywords": ["dns", "domain", "domains", "registrar", "dns-records", "ovh", "gandi", "cloudflare", "scaleway", "framework-agnostic", "omnidns"],
-    "homepage": "https://github.com/glitchr-studio/omnidns",
+    "homepage": "https://github.com/glitchr-omnisense/omnidns",
     "license": "MIT",
     "authors": [
         {
@@ -25,6 +25,9 @@
         "omnidns/cloudflare": "Cloudflare: zone records (over cloudflare/sdk), the Registrar's domains and their terms",
         "omnidns/scaleway": "Scaleway Domains and DNS: availability, registration and renewal, domains, name servers, zone records",
         "symfony/http-client": "An HTTP client for the providers that take one (any symfony/http-client-contracts implementation does)"
+    },
+    "replace": {
+        "omniscient/omnidns": "self.version"
     },
     "autoload": {
         "psr-4": {

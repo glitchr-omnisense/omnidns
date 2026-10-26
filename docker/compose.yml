@@ -1,4 +1,4 @@
-# omniscient/omnidns with every omnidns/* provider:
+# omnisense/omnidns with every omnidns/* provider:
 #
 #   docker compose run --rm omnidns test       # every package's tests (recorded answers, no network)
 #   docker compose run --rm omnidns bare       # plain PHP: a registry, a domain checked, registered, its zone written - and what PHP loaded
@@ -13,7 +13,7 @@ name: omnidns-harness
 services:
   omnidns:
     build: .
-    image: omniscient/omnidns-harness
+    image: omnisense/omnidns-harness
     # One service, no server beside it: Docker's default bridge, no network of its own to create.
     network_mode: bridge
     env_file:
