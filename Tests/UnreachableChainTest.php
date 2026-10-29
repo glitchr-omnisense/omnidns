@@ -1,0 +1,46 @@
+<?php
+
+namespace Omnidns\Tests;
+
+use Omnidns\Exception\UnreachableException;
+use Omnidns\Http\Json;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpClient\Exception\TransportException;
+use Symfony\Component\HttpClient\MockHttpClient;
+
+/**
+ * Nothing of the key anywhere in what a log of a failed call writes: the messages, the previous
+ * exception's (a copy of the HTTP client's, its class and code kept, the key's parameter masked),
+ * and the traces' arguments, which PHP keeps unless zend.exception_ignore_args is on.
+ */
+final class UnreachableChainTest extends TestCase
+{
+    public function testNoPartOfAnUnreachableChainHoldsTheKey(): void
+    {
+        $ignoreArgs = ini_set('zend.exception_ignore_args', '0');
+        $http = new MockHttpClient(static function (string $method, string $url): never {
+            throw new TransportException(\sprintf('Could not resolve host: api.example for "%s".', $url), 6);
+        });
+
+        try {
+            Json::request($http, 'GET', 'https://api.example/v1/zones', ['query' => ['api_key' => 'secret-api-key-123', 'page' => 2], 'headers' => ['X-Auth-Token' => 'scaleway-secret-456']], 'Example', 'the list');
+            self::fail('no exception');
+        } catch (UnreachableException $e) {
+            $previous = $e->getPrevious();
+            self::assertInstanceOf(TransportException::class, $previous);
+            self::assertSame(6, $previous->getCode());
+            self::assertStringContainsString('api_key=***', $previous->getMessage());
+            self::assertStringContainsString('api_key=***', $e->getMessage());
+            self::assertNotEmpty($e->getTrace());
+            for ($one = $e; null !== $one; $one = $one->getPrevious()) {
+                foreach (['secret-api-key-123', 'scaleway-secret-456'] as $secret) {
+                    self::assertStringNotContainsString($secret, $one->getMessage());
+                    self::assertStringNotContainsString($secret, print_r($one->getTrace(), true));
+                    self::assertStringNotContainsString($secret, $one->getTraceAsString());
+                }
+            }
+        } finally {
+            ini_set('zend.exception_ignore_args', false !== $ignoreArgs ? $ignoreArgs : '1');
+        }
+    }
+}

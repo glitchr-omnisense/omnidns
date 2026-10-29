@@ -26,7 +26,10 @@ final class Json
             $status = $response->getStatusCode();
             $body = $response->getContent(false);
         } catch (ExceptionInterface $e) {
-            throw new UnreachableException(\sprintf('%s could not be reached for %s: %s', $provider, $what, $e->getMessage()), 0, $e);
+            // The client's message and exception with the request's secrets masked, no trace keeping the options.
+            $secrets = Redaction::secrets($url, $options);
+
+            throw Redaction::withoutArguments(new UnreachableException(\sprintf('%s could not be reached for %s: %s', $provider, $what, Redaction::text($e->getMessage(), $secrets)), 0, Redaction::copy($e, $secrets)));
         }
         $data = '' === trim($body) ? [] : json_decode($body, true);
         if ($status >= 300) {
