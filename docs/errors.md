@@ -36,7 +36,8 @@ keys and signature) are masked (`api_key=***`, `Http\Redaction::text()`). The pr
 a copy of the client's (`Redaction::copy()`: the same class and code, that message, without the
 request a Guzzle exception carried), and no trace of the chain keeps its arguments, where the
 query and headers stood: a log that writes the whole chain, arguments included
-(`zend.exception_ignore_args` off), holds no key.
+(`zend.exception_ignore_args` off), holds no key. Nor does an error answered (a refused key, nothing there, a server error, a body
+that is not JSON): every exception `Json::request()` throws leaves its trace's arguments out.
 
 ## ProviderException's code
 

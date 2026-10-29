@@ -36,10 +36,10 @@ final class Json
             // The provider's own words when it gives them: Gandi's and Scaleway's "message", Cloudflare's errors.
             $message = self::string($data, 'message') ?? self::string($data, 'errors', 0, 'message') ?? self::string($data, 'error');
 
-            throw ProviderException::answered($provider, $what, $status.(null === $message ? '' : " ($message)"), $status);
+            throw Redaction::withoutArguments(ProviderException::answered($provider, $what, $status.(null === $message ? '' : " ($message)"), $status));
         }
 
-        return \is_array($data) ? $data : throw ProviderException::answered($provider, $what, 'something that is not JSON');
+        return \is_array($data) ? $data : throw Redaction::withoutArguments(ProviderException::answered($provider, $what, 'something that is not JSON'));
     }
 
     /** The value at a path of keys; null when any step is missing. */
