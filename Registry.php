@@ -16,6 +16,10 @@ use Omnidns\Exception\NotSupportedException;
  *
  *   $registry->availability('registrar')->check('example.org')->available;
  *   $registry->dns('dns')->records('example.org', 'MX');
+ *
+ * A typed getter gives the provider when it implements the interface and
+ * its capabilities() say it gives that as configured (Cloudflare lists
+ * domains only with an account_id): otherwise a NotSupportedException.
  */
 final class Registry
 {
@@ -51,7 +55,7 @@ final class Registry
     {
         $provider = $this->get($name);
 
-        return $provider instanceof AvailabilityInterface ? $provider : throw NotSupportedException::capability($provider, $name, 'check availability');
+        return $provider instanceof AvailabilityInterface && $provider->capabilities()->availability ? $provider : throw NotSupportedException::capability($provider, $name, 'check availability');
     }
 
     /** The provider, as a registrar. */
@@ -59,7 +63,7 @@ final class Registry
     {
         $provider = $this->get($name);
 
-        return $provider instanceof RegistrarInterface ? $provider : throw NotSupportedException::capability($provider, $name, 'register or renew domains');
+        return $provider instanceof RegistrarInterface && $provider->capabilities()->registrar ? $provider : throw NotSupportedException::capability($provider, $name, 'register or renew domains');
     }
 
     /** The provider, as the account's domains. */
@@ -67,7 +71,7 @@ final class Registry
     {
         $provider = $this->get($name);
 
-        return $provider instanceof DomainsInterface ? $provider : throw NotSupportedException::capability($provider, $name, 'list domains');
+        return $provider instanceof DomainsInterface && $provider->capabilities()->domains ? $provider : throw NotSupportedException::capability($provider, $name, 'list domains');
     }
 
     /** The provider, as a domain's name servers. */
@@ -75,7 +79,7 @@ final class Registry
     {
         $provider = $this->get($name);
 
-        return $provider instanceof NameserversInterface ? $provider : throw NotSupportedException::capability($provider, $name, 'manage name servers');
+        return $provider instanceof NameserversInterface && $provider->capabilities()->nameservers ? $provider : throw NotSupportedException::capability($provider, $name, 'manage name servers');
     }
 
     /** The provider, as a zone's records. */
@@ -83,7 +87,7 @@ final class Registry
     {
         $provider = $this->get($name);
 
-        return $provider instanceof DnsInterface ? $provider : throw NotSupportedException::capability($provider, $name, 'serve DNS records');
+        return $provider instanceof DnsInterface && $provider->capabilities()->dns ? $provider : throw NotSupportedException::capability($provider, $name, 'serve DNS records');
     }
 
     /** @return array<string, mixed> the options a provider is configured with */

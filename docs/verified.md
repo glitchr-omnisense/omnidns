@@ -39,7 +39,8 @@ were run in the harness on 2026-10-26.
 - The [Symfony](symfony.md) and [Laravel](laravel.md) pages were written from the classes'
   constructors, not run in an application.
 - The known defects found while writing this manual (Cloudflare's domains without
-  `account_id`, OVH's listed rights) are flagged where the behaviour is described.
+  `account_id`, OVH's listed rights) are fixed since: the registry's getters ask the capabilities
+  (with a test), OVH's rights name DELETE on `/domain/zone/*` (a list, no test).
 
 ## Responsibility
 

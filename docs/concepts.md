@@ -46,14 +46,10 @@ it is found among the zone's records by name, type and content (`Record::sameAs(
 | Scaleway | yes | yes | yes | yes | yes | Scaleway's contracts, the Domains and DNS API |
 | `memory` | yes | yes | yes | yes | yes | - |
 
-Every provider's `recordTypes` is `Record::TYPES`.
-
-> [!WARNING]
-> Known defect: `CloudflareProvider` implements `DomainsInterface` whatever its options; without
-> `account_id` its `capabilities()->domains` is false, but `$registry->domains('cloudflare')` returns it and
-> `domains()` throws `InvalidConfigException` (`The "cloudflare" provider needs an account_id to
-> read the Registrar's domains.`), where its README says there is then no `DomainsInterface`
-> (the registry's `NotSupportedException`).
+Every provider's `recordTypes` is `Record::TYPES`. The registry's typed getters (`domains()`,
+`dns()`...) give a provider when it implements the contract and its capabilities say it gives it as
+configured: Cloudflare without `account_id` implements `DomainsInterface` but is refused by
+`domains()` (`NotSupportedException`).
 
 ## Factory and Config
 

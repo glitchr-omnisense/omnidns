@@ -36,13 +36,8 @@ with that client, or its own.
 | `auto_pay` | bool | `false` | no | `true`: an order is paid at once with the account's preferred means of payment; `false`: it waits at `Order::$paymentUrl` |
 
 The application is created at https://eu.api.ovh.com/createToken/ with the rights the factory
-lists: GET/POST on `/order/cart*`, GET/PUT/POST on `/domain*`, GET/POST on `/service/*`.
-
-> [!WARNING]
-> Known defect: `delete()` (and an `update()` that changes a record's type) calls
-> `DELETE /domain/zone/{zone}/record/{id}`, which the rights the factory and the README list do not
-> cover, where the list should hold every right a call needs. Add DELETE on `/domain/zone/*` to the
-> application's rights.
+lists: GET/POST on `/order/cart*`, GET/PUT/POST on `/domain*`, DELETE on `/domain/zone/*` (`delete()`,
+and an `update()` that changes a record's type), GET/POST on `/service/*`.
 
 ## gandi
 
