@@ -71,3 +71,13 @@ with a higher maximum, or `unknown` turned into `allowed`, is an `InvalidPolicyE
 first typed getter. `$limiter` is where every call is counted: an in-memory one by default, a
 shared one (omnibridge/symfony's, over symfony/rate-limiter) when the application runs on many
 processes.
+
+## Writes sent once
+
+The HTTP client a provider is given (the application's `http_client`, or a site's own) is kept
+with its retries off where every call goes out, omnidns's `Http\JsonClient`
+(omnisense/contracts' `Http\NoRetry`): Symfony's `RetryableHttpClient`
+(`framework.http_client`'s `retry_failed`) would send a record created, changed or deleted again on a 429, 502 or 503, and a
+429 retried by the client never reaches the provider's wait. Nothing retries a call; the caller
+decides. A `MockHttpClient` is kept as given (its `getRequestsCount()` still counts). It needs
+omnisense/contracts 1568f2c or later; with an older one the client is kept as given.

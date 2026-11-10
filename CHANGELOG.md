@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Added
+
+- 2026-11-10, writes sent once: `Http\JsonClient`, which `Http\Json::request()` sends every
+  Gandi and Scaleway call through, keeps the HTTP client it is given with its retries off
+  (omnisense/contracts' `Http\NoRetry`, which omnisense/contracts 1568f2c brings; with an older
+  kernel the client is kept as given), so Symfony's `RetryableHttpClient` never sends a DNS
+  record created, changed or deleted twice. A `MockHttpClient` is kept as given. Cloudflare (its
+  SDK's adapter) and OVH (Guzzle) do not send through a Symfony client. docs/policies.md.
+  Tests/NoRetryTest.
+
 ### Changed
 
 - omnisense/omnidns builds on omnisense/contracts, the kernel every omnisense family shares.
