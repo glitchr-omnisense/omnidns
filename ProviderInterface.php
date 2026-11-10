@@ -8,9 +8,10 @@ namespace Omnidns;
  * it can be asked - is a domain free (AvailabilityInterface), register or
  * renew it (RegistrarInterface), the domains the account holds and when they
  * end (DomainsInterface), their name servers (NameserversInterface), the
- * records of a zone (DnsInterface) - and whose terms apply.
+ * records of a zone (DnsInterface) - and its usage policy: its rate
+ * limits, whose terms apply.
  */
-interface ProviderInterface
+interface ProviderInterface extends \Omnisense\Contracts\Provider\ProviderInterface
 {
     /** The factory's name: "ovh", "gandi", "cloudflare", "scaleway"... */
     public function getName(): string;

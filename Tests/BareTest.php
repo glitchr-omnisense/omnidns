@@ -10,14 +10,15 @@ use PHPUnit\Framework\TestCase;
  * (this one has loaded PHPUnit), the harness's bare script builds a
  * registry, checks, registers and renews a domain, writes its zone - and every class of the
  * package is loaded. Nothing may come from outside the package but what it
- * requires: Symfony's HTTP client contracts (interfaces only) - no
+ * requires: omnisense/contracts (the kernel, plain PHP) and Symfony's HTTP
+ * client contracts (interfaces only) - no
  * framework, no HTTP client, no application, even in the harness where they
  * are installed beside it.
  */
 final class BareTest extends TestCase
 {
     private const FOREIGN = '~^(?:Symfony\\\\(?!Contracts\\\\HttpClient\\\\|Polyfill\\\\)|(?:Illuminate|Laravel|Doctrine|Twig|League|GuzzleHttp|Nyholm|Http|Omnibridge|Base|App)\\\\)~';
-    private const ALLOWED_FILES = '~/vendor/(?:symfony/http-client-contracts|composer)/|/vendor/autoload\.php$~';
+    private const ALLOWED_FILES = '~/vendor/(?:omnisense/contracts|symfony/http-client-contracts|composer)/|/vendor/autoload\.php$|^/omnisense/contracts/~';
 
     public function testARegistryUsedByHandLoadsNothingButOmnidnsAndWhatItRequires(): void
     {

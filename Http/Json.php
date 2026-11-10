@@ -4,33 +4,49 @@ namespace Omnidns\Http;
 
 use Omnidns\Exception\ProviderException;
 use Omnidns\Exception\UnreachableException;
-use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
+use Omnisense\Contracts\Policy\Backoff;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * A JSON request on the application's HTTP client, its failures turned into
- * omnidns's exceptions (an empty answer is an empty array); and typed reads of what came back, for providers
- * that walk an answer they do not control.
+ * omnidns's exceptions (an empty answer is an empty array), through
+ * omnidns's JsonClient and the provider's Backoff when it is given; and
+ * typed reads of what came back, for providers that walk an answer they do
+ * not control.
  */
 final class Json
 {
     /**
+     * The call goes through omnidns's JsonClient (omnisense/contracts'):
+     * given the provider's Backoff, it waits while the provider asked to,
+     * and a 429 is a UsageLimitReachedException holding the next calls for
+     * its Retry-After; without one, a 429 is a ProviderException as any
+     * other error status. Every error status is given back by raw(), so
+     * that the provider's own words make the message.
+     *
      * @param array<string, mixed> $options the client's options (headers, json, query...)
      *
      * @return array<mixed> the decoded answer
      */
-    public static function request(HttpClientInterface $http, string $method, string $url, array $options, string $provider, string $what): array
+    public static function request(HttpClientInterface $http, string $method, string $url, array $options, string $provider, string $what, ?Backoff $backoff = null): array
     {
-        try {
-            $response = $http->request($method, $url, $options);
-            $status = $response->getStatusCode();
-            $body = $response->getContent(false);
-        } catch (ExceptionInterface $e) {
-            // The client's message and exception with the request's secrets masked, no trace keeping the options.
-            $secrets = Redaction::secrets($url, $options);
-
-            throw Redaction::withoutArguments(new UnreachableException(\sprintf('%s could not be reached for %s: %s', $provider, $what, Redaction::text($e->getMessage(), $secrets)), 0, Redaction::copy($e, $secrets)));
+        $headers = [];
+        foreach (\is_array($options['headers'] ?? null) ? $options['headers'] : [] as $name => $value) {
+            if (\is_string($name) && (\is_string($value) || \is_array($value))) {
+                $headers[$name] = \is_string($value) ? $value : array_values(array_map(static fn ($one) => \is_scalar($one) ? (string) $one : '', $value));
+            }
         }
+        unset($options['headers']);
+        try {
+            $answer = (new JsonClient($http, $provider, [], $backoff))->raw($method, $url, $options, $headers, range(400, 599));
+        } catch (UnreachableException $e) {
+            // The client's message, its secrets masked (the previous exception's), under what was asked rather than the path.
+            $previous = $e->getPrevious() ?? $e;
+
+            throw Redaction::withoutArguments(new UnreachableException(\sprintf('%s could not be reached for %s: %s', $provider, $what, $previous->getMessage()), 0, $previous));
+        }
+        $status = $answer->status;
+        $body = $answer->body;
         $data = '' === trim($body) ? [] : json_decode($body, true);
         if ($status >= 300) {
             // The provider's own words when it gives them: Gandi's and Scaleway's "message", Cloudflare's errors.

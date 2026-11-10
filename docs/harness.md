@@ -27,6 +27,12 @@ Providers come from GitHub (branch 1.x) unless `OMNIDNS_PLUGINS` (in `docker/.en
 directory holding their checkouts - `../..` when this core sits in the workspace beside them, as
 `docker/.env` sets it.
 
+omnisense/contracts, the kernel the family builds on, comes from its checkout under
+`OMNISENSE_CONTRACTS` (in `docker/.env`: `../../../omnisense-contracts` when it sits beside the
+family's folder), its tests run with the family's, or from GitHub otherwise. The compose file names
+the entrypoint, so the image may be another family's harness tagged `omnisense/omnidns-harness`
+(the same PHP 8.4 Alpine with Composer).
+
 ## Bare
 
 `docker/harness/bin/bare` uses Omnidns in plain PHP - no bundle, no container, no framework: a

@@ -16,6 +16,7 @@ use Omnidns\Model\Order;
 use Omnidns\Model\Record;
 use Omnidns\NameserversInterface;
 use Omnidns\RegistrarInterface;
+use Omnisense\Contracts\Policy\UsagePolicy;
 
 /**
  * A registrar and a DNS host in memory, every contract answered: for tests,
@@ -55,7 +56,7 @@ final class MemoryProvider implements AvailabilityInterface, RegistrarInterface,
 
     public function capabilities(): Capabilities
     {
-        return new Capabilities(true, true, true, true, true, Record::TYPES);
+        return new Capabilities(true, true, true, true, true, Record::TYPES, policy: UsagePolicy::builder('memory')->noLimits()->requireKey(false)->provenance(notes: 'In memory: no limit, no terms.')->build());
     }
 
     public function check(string $domain): Availability

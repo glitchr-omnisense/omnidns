@@ -8,12 +8,17 @@
 # No live run: every provider needs an account and a key (OVH's availability included).
 # Providers come from GitHub (branch 1.x) unless their checkout sits under OMNIDNS_PLUGINS (set it
 # to ../.. in .env when this core sits in the workspace beside them): then that checkout is what runs.
+# omnisense/contracts likewise: its checkout under OMNISENSE_CONTRACTS (../../../omnisense-contracts
+# in .env when it sits beside the family's folder), its tests run with the family's; GitHub otherwise.
 name: omnidns-harness
 
 services:
   omnidns:
     build: .
     image: omnisense/omnidns-harness
+    # The image may be another family's harness tagged (the same PHP 8.4 Alpine with Composer): the
+    # entrypoint is named here, not taken from the image.
+    entrypoint: ["/omnidns/core/docker/entrypoint.sh"]
     # One service, no server beside it: Docker's default bridge, no network of its own to create.
     network_mode: bridge
     env_file:
@@ -22,6 +27,7 @@ services:
     volumes:
       - ..:/omnidns/core
       - ${OMNIDNS_PLUGINS:-./plugins}:/omnidns/plugins:ro
+      - ${OMNISENSE_CONTRACTS:-./contracts}:/omnisense/contracts:ro
       - harness:/harness
 
 volumes:

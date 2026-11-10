@@ -35,8 +35,10 @@ it is found among the zone's records by name, type and content (`Record::sameAs(
 ## Capabilities
 
 `Omnidns\Capabilities` (readonly): `availability`, `registrar`, `domains`, `nameservers`, `dns`
-(bool, default `false`), `recordTypes` (`list<string>`), `terms` (`list<string>`, URLs).
-`contracts()` lists the contracts it has, `toArray()` gives `{contracts, recordTypes, terms}`.
+(bool, default `false`), `recordTypes` (`list<string>`), `terms` (`list<string>`, URLs; deprecated,
+read from the policy when it is given), `policy` (omnisense/contracts' `UsagePolicy`: made of
+`terms` when none is given, its limits unknown). `contracts()` lists the contracts it has,
+`policy()` gives the policy, `toArray()` gives `{contracts, recordTypes, terms, policy}`.
 
 | | availability | registrar | domains | nameservers | dns | terms |
 |---|---|---|---|---|---|---|
@@ -80,11 +82,13 @@ $registry = new Registry([new OvhFactory(), new CloudflareFactory()], [
 
 | Method | Returns |
 |---|---|
-| `get(string $name): ProviderInterface` | the provider, built the first time and kept |
-| `availability()`, `registrar()`, `domains()`, `nameservers()`, `dns()` (each `string $name`) | the provider as that contract; `NotSupportedException` when it is not one, before any call (`The "cloudflare" DNS provider (Omnidns\Cloudflare\CloudflareProvider) does not check availability.`) |
+| `get(string $name): ProviderInterface` | the provider, built the first time and kept, unguarded |
+| `availability()`, `registrar()`, `domains()`, `nameservers()`, `dns()` (each `string $name`) | the provider as that contract, behind its guard (`Policy\GuardedAvailability`... - `inner()` gives the provider): each call checked against its [usage policy](policies.md); `NotSupportedException` when it is not one, before any call (`The "cloudflare" DNS provider (Omnidns\Cloudflare\CloudflareProvider) does not check availability.`) |
+| `policy(string $name)`, `policies()` | a provider's usage policy as the site runs it, every configured one's |
+| `guard(string $name)` | its `PolicyGuard` |
 | `has(string $name): bool` | configured or not |
 | `options(string $name): array` | its configured options |
-| `names(): list<string>` | the configured names |
+| `names(?string $contract = null): list<string>` | the configured names; those keeping a contract when one is named |
 | `factories(): list<string>` | the factories installed |
 
 An unknown name or factory is an `InvalidConfigException` (`No "x" DNS provider; configured:
@@ -177,8 +181,10 @@ letters, or an amount that is not numeric, is an `InvalidConfigException`.
 
 ## Http\Json
 
-`Omnidns\Http\Json::request($http, $method, $url, $options, $provider, $what)`: the call on the
-application's client; a network failure is an `UnreachableException`; a status of 300 or more a
+`Omnidns\Http\Json::request($http, $method, $url, $options, $provider, $what, ?Backoff $backoff = null)`:
+the call on the application's client, through `Http\JsonClient` (omnisense/contracts'); given the
+provider's Backoff, a 429 is a `UsageLimitReachedException` and its `Retry-After` holds the next
+calls (without one, a `ProviderException` as before); a network failure is an `UnreachableException`; a status of 300 or more a
 `ProviderException` whose message carries the provider's own words when it gives them (`message`,
 `errors[0].message` or `error`) and whose code is the status (`Gandi answered 404 (The resource
 could not be found.) for the domain example.org.`, code 404); an empty body is `[]`; another body

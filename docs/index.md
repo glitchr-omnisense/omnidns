@@ -21,9 +21,13 @@ groups records by name and type and names none, and omnidns hides it. The design
 Omnisense families' one: a provider's **factory** builds it from options, a **registry** holds
 the application's providers by name.
 
-The core is plain PHP: it requires `symfony/http-client-contracts` (interfaces only) and nothing
-else. Gandi and Scaleway take the application's HTTP client; OVH and Cloudflare wrap their
-official or community clients (ovh/ovh, cloudflare/sdk), which send with Guzzle.
+The core is plain PHP: it requires omnisense/contracts (the kernel every omnisense family
+builds on: the registry, the factories, the JSON calls, usage policies) and
+`symfony/http-client-contracts` (interfaces only), nothing else. Each provider declares its
+[usage policy](policies.md) - rate limits, rights, as its terms say them - and the registry's
+typed getters guard every call with it. Gandi and Scaleway take the application's HTTP client;
+OVH and Cloudflare wrap their official or community clients (ovh/ovh, cloudflare/sdk), which
+send with Guzzle.
 
 Published as `omnisense/omnidns`, formerly `omniscient/omnidns`: the package `replace`s the old
 name. The namespace is `Omnidns\`; providers keep the `omnidns/` vendor and the

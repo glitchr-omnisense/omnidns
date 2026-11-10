@@ -73,6 +73,7 @@ handling of its clients' domains where they are registered.
 - [Errors](docs/errors.md)
 - [Testing](docs/testing.md): the in-memory provider, recorded answers
 - [The harness](docs/harness.md)
+- [Usage policies](docs/policies.md): each provider's rate limits and rights, the guard, a site's tightening
 - [Writing a provider](docs/providers.md)
 - [Verified, and not](docs/verified.md)
 
@@ -96,8 +97,9 @@ handling of its clients' domains where they are registered.
 
 omnisense/omnidns and its omnidns/* providers are unofficial clients, affiliated with none of
 the services they reach. The MIT licence covers the code only and grants no right to any service;
-whoever runs them complies with each service's terms (named in each provider's README and in
-`Capabilities::$terms`), pays for the orders made, and obtains what they require.
+whoever runs them complies with each service's terms (each provider's `policy.json`, its README and
+`Capabilities::policy()` say what was read of them, and when), pays for the orders made, and
+obtains what they require.
 
 ## Licence
 

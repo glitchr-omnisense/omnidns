@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+### Changed
+
+- omnisense/omnidns builds on omnisense/contracts, the kernel every omnisense family shares.
+  `Config`, `ProviderInterface`, `ProviderFactoryInterface`, `ProviderFactory` (`populate()` and
+  `build()` as before), `Registry` and `Http\Redaction` keep their names and API, each a thin
+  subclass of the kernel's (prefix `omnidns`, omnidns's exceptions). `OmnidnsException` extends
+  the kernel's `ExceptionInterface`.
+- `Http\Json::request()` makes its call through the new `Http\JsonClient` (the kernel's, with
+  omnidns's exceptions) and takes the provider's `Backoff` as an optional last argument. Its
+  messages, codes and errors are unchanged; the static readers stay.
+- The registry's typed getters give the provider behind its guard (`Policy\GuardedAvailability`,
+  `GuardedRegistrar`, `GuardedDomains`, `GuardedNameservers`, `GuardedDns`; `inner()` gives the
+  provider): a call over a rate limit of its usage policy is never made, a 429 and its
+  Retry-After hold every call of the provider (`Exception\UsageLimitReachedException`). `get()`
+  stays unguarded.
+
+### Added
+
+- `Capabilities::policy()`: the provider's `UsagePolicy`, given (`policy:`) or made of `$terms`,
+  which stays, deprecated.
+- A site's `policy` (a tightening, never looser) and `usage` per provider; `Registry::policy()`,
+  `policies()`, `guard()`, `names()` by contract; a shared `RateLimiterInterface` as the
+  registry's third argument. `docs/policies.md`.
+- The harness installs omnisense/contracts from its checkout (`OMNISENSE_CONTRACTS`) or GitHub,
+  runs its tests, and names its entrypoint.
+
 ### Fixed
 
 - No exception `Json::request()` throws keeps its trace's arguments: an error answered (a refused key,

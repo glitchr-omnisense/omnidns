@@ -30,6 +30,13 @@ A provider is a package `omnidns/<name>` with a factory and a provider class:
 
 ## What the four providers keep to
 
+- A `policy.json` beside the provider (omnisense/contracts' schema), named in `composer.json`'s
+  `extra.omnisense.policy`: its rate limits and rights as its terms say them on `verifiedAt`,
+  `null`/`unknown` where they say nothing (never a figure guessed); the provider implements
+  `DeclaresUsagePolicyInterface` and gives it to its `Capabilities` (`policy:`); the factory
+  gives `$c->backoff()` to the provider, which hands it to `Json::request()` (or, over an SDK,
+  observes the error response's status and headers with it). A `PolicyTest`: the policy as
+  declared, a site's limit counted, a 429 and its Retry-After honoured, a looser setting refused.
 - Every domain and zone given goes through `DomainName::normalize()` before any call.
 - A duration outside 1 to 10 years, and an owner the provider cannot take, are refused before
   any call (`InvalidArgumentException`).

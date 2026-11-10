@@ -8,7 +8,7 @@ order: 40
 ## The registry
 
 ```php
-new Registry(iterable $factories, array $config);
+new Registry(iterable $factories, array $config, ?RateLimiterInterface $limiter = null);
 ```
 
 | Key | Type | Required | |
@@ -16,6 +16,12 @@ new Registry(iterable $factories, array $config);
 | `<name>` | string | - | the name the application gives the provider: `registrar`, `dns`... |
 | `<name>.factory` | string | yes | `ovh`, `gandi`, `cloudflare`, `scaleway`, `memory` |
 | `<name>.options` | array | no (`[]`) | the provider's options, below |
+| `<name>.policy` | array | no | the site's tightening of the provider's [usage policy](policies.md), in omnisense/contracts' schema: limits added, permissions only stricter; anything looser is an `InvalidPolicyException` (may sit in `options` too) |
+| `<name>.usage` | array | no | what the site is: `commercial`, `open_source`, `contract` (bool); a use the terms forbid is refused at once (`UsageNotPermitted`) |
+
+The third argument counts every provider's calls: an in-memory `RateLimiterInterface` by default
+(one process), a shared one (omnibridge/symfony's, over symfony/rate-limiter) for an application
+served by many.
 
 Options are taken as given: a required option given as `null`, `''` or `[]` is reported missing;
 an optional one given as `''` reads as not set. Booleans accept `true`, `"1"`, `"true"`, `"yes"`,

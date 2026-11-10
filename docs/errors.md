@@ -5,7 +5,8 @@ order: 50
 
 # Errors
 
-Every exception Omnidns throws implements `Omnidns\Exception\OmnidnsException` (a `\Throwable`):
+Every exception Omnidns throws implements `Omnidns\Exception\OmnidnsException`, which extends
+omnisense/contracts' `ExceptionInterface` (one catch for every omnisense family):
 
 | Exception | Extends | When |
 |---|---|---|
@@ -14,6 +15,7 @@ Every exception Omnidns throws implements `Omnidns\Exception\OmnidnsException` (
 | `NotSupportedException` | `\LogicException` | the registry's typed getter asked of a provider without that contract, before any call |
 | `ProviderException` | `\RuntimeException` | the provider answered, and not with what was asked: an error status, a domain not in the account, a record not found, an order refused, a body that is not JSON |
 | `UnreachableException` | `\RuntimeException` | the provider could not be reached: a network error, a timeout; a copy of the client's exception is the previous one ([no secret in it](#no-secret-in-a-failure)) |
+| `UsageLimitReachedException` | omnisense/contracts' `UsageLimitReached` (`\RuntimeException`) | a call refused before it was made: a rate limit of the provider's [usage policy](policies.md) is reached, or the provider asked to wait (a 429 and its `Retry-After`, a `RateLimit` field with nothing left); `$retryAfter` (seconds), `$limit` (the limit reached, null for a wait the provider asked) |
 
 Messages, as the providers write them (run on 2026-10-26 in the [harness](harness.md)):
 
@@ -54,5 +56,6 @@ Scaleway's `message`, Cloudflare's `errors[0].message`, OVH's `message`.
 | a domain search | `InvalidArgumentException`: the name typed is not a domain; `ProviderException`, `UnreachableException`: "not available now" |
 | an order | the same; a `ProviderException` after `register()` may mean the order was made and the answer lost - check `domains()` before trying again |
 | a record change | `ProviderException` with "no such record": the zone changed since it was read |
-| building the registry, a deploy | `InvalidConfigException`: a configuration error, to fix |
+| building the registry, a deploy | `InvalidConfigException`: a configuration error, to fix; `InvalidPolicyException` (a site's `policy` looser than the provider's) and `UsageNotPermitted` (a `usage` the terms forbid), both omnisense/contracts', on the first typed getter |
+| any call through a typed getter | `UsageLimitReachedException`: try again after `$retryAfter` seconds; nothing was sent |
 | a list over every provider | check the contract first (`instanceof`, `capabilities()`); `NotSupportedException` is a programming error |
