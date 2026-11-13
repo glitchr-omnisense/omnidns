@@ -6,6 +6,36 @@ servers, and the records of their zones - from OVH, Gandi, Cloudflare or Scalewa
 set of models. Plain PHP: no framework in `require`; a provider takes the application's HTTP
 client, or wraps the official client where one is maintained.
 
+## Installation and a first call
+
+```sh
+composer require omnisense/omnidns omnidns/gandi
+```
+
+Every provider needs an account at its registrar or DNS host (OVH: an application key, secret and consumer key;
+Gandi: a personal access token; Cloudflare: an API token; Scaleway: an API secret key) - and a registration or a renewal is
+paid for. The first call below needs none: the recorded client of omnisense/contracts' Testing kit answers for
+Gandi, as its tests do (`Omnidns\Testing\MemoryProvider` is a registrar and a DNS host in memory, for an
+application's own tests):
+
+```php
+require __DIR__.'/vendor/autoload.php';
+
+use Omnidns\Gandi\GandiFactory;
+use Omnidns\Registry;
+use Omnisense\Contracts\Testing\RecordedHttpClient;
+
+$http = RecordedHttpClient::routes([            // Gandi's answer, recorded: symfony/http-client's HttpClient::create() in production
+    '~^GET https://api\.gandi\.net/v5/domain/check\?name=example\.org$~' => [200, '{"currency":"EUR","products":[{"name":"example.org","status":"available","process":"create","prices":[{"min_duration":1,"max_duration":10,"duration_unit":"y","price_after_taxes":14.4,"price_before_taxes":12}]}]}'],
+]);
+$registry = new Registry([new GandiFactory($http)], ['gandi' => ['factory' => 'gandi', 'options' => ['token' => 'a personal access token']]]);
+
+$availability = $registry->availability('gandi')->check('example.org');
+echo $availability->available ? 'free' : 'taken', ', ', $availability->price?->decimal(), ' ', $availability->price?->currency, "\n";   // free, 12.00 EUR
+```
+
+Several providers by name:
+
 ```php
 use Omnidns\Cloudflare\CloudflareFactory;
 use Omnidns\Model\Record;

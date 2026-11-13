@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-13
+
+The first stable version. It requires `omnisense/contracts` `^1.0` with no stability flag, so `composer require omnisense/omnidns` installs it in a project with Composer's default minimum-stability; the 1.x series follows semantic versioning. A tag `vX.Y.Z` is released by `.github/workflows/release.yml` once the package's CI passes on it.
+
+### Changed
+
+- `Http\JsonClient` always takes the client through `NoRetry::of()`: the fallback for a kernel older
+  than omnisense/contracts 1568f2c (the client kept as given when `NoRetry` was missing) is gone,
+  `^1.0` always has it.
+- The README opens on the install line and a first call that needs no account (Gandi answered by
+  the recorded client of omnisense/contracts' Testing kit), and says what each provider needs.
+
 ### Added
 
 - 2026-11-10, writes sent once: `Http\JsonClient`, which `Http\Json::request()` sends every
